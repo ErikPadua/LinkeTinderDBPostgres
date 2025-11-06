@@ -1,11 +1,11 @@
-import database.ConnectionPostgres
+import database.DataSeeder
+import database.factory.postgres.PostgresConnectionFactory
 import view.Menu
-
 import java.sql.Connection
 
-Connection conn = ConnectionPostgres.conectar()
-ConnectionPostgres.criarDatabase(conn)
+Connection conn = new PostgresConnectionFactory().createConnection().getConnection();
+DataSeeder.preencherDatabase(conn)
 
 Menu.startMenu(conn)
 
-ConnectionPostgres.desconectar(conn)
+conn.close()
