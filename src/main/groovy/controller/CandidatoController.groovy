@@ -1,7 +1,7 @@
 package controller
 
 import model.Candidato
-import service.CandidatoService
+import DAO.CandidatoDAO
 import view.MenuCriarModel
 
 import java.sql.Connection
@@ -16,7 +16,7 @@ class CandidatoController {
         this.conn = connection
     }
 
-    CandidatoService service = new CandidatoService()
+    CandidatoDAO service = new CandidatoDAO()
     Scanner input = new Scanner(System.in)
 
     void cadastrarCandidato() {

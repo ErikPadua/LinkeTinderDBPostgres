@@ -1,7 +1,7 @@
 package controller
 
 import model.Competencia
-import service.CompetenciaService
+import DAO.CompetenciaDAO
 import view.MenuCriarModel
 
 import java.sql.Connection
@@ -14,7 +14,7 @@ class CompetenciaController {
         this.conn = connection
     }
 
-    CompetenciaService service = new CompetenciaService()
+    CompetenciaDAO service = new CompetenciaDAO()
     Scanner input = new Scanner(System.in)
 
     void cadastrarCompetencia() {

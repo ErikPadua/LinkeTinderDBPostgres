@@ -1,16 +1,15 @@
-package service
+package DAO
 
 import model.Vaga
-import repository.VagaRepository
+import util.VagaQueryUtil
 
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
-import java.time.LocalDate
 
-class VagaService {
+class VagaDAO {
 
-    VagaRepository repository = new VagaRepository()
+    VagaQueryUtil repository = new VagaQueryUtil()
 
     void cadastrarVaga(Connection conn, Vaga vaga) {
         try {

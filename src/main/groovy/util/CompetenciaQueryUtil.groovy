@@ -1,10 +1,10 @@
-package repository
+package util
 
 import model.Competencia
 
 import java.time.LocalDate
 
-class CompetenciaRepository {
+class CompetenciaQueryUtil {
 
     String cadastra(Competencia competencia) {
         return """

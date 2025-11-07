@@ -1,7 +1,7 @@
 package controller
 
 import model.Vaga
-import service.VagaService
+import DAO.VagaDAO
 import view.MenuCriarModel
 
 import java.sql.Connection
@@ -14,7 +14,7 @@ class VagaController {
         this.conn = connection
     }
 
-    VagaService service = new VagaService()
+    VagaDAO service = new VagaDAO()
     Scanner input = new Scanner(System.in)
 
     void cadastrarVaga() {

@@ -1,15 +1,15 @@
-package service
+package DAO
 
 import model.Empresa
-import repository.EmpresaRepository
+import util.EmpresaQueryUtil
 
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class EmpresaService {
+class EmpresaDAO {
 
-    EmpresaRepository repository = new EmpresaRepository()
+    EmpresaQueryUtil repository = new EmpresaQueryUtil()
 
     void cadastrarEmpresa(Connection conn, Empresa empresa) {
         try {

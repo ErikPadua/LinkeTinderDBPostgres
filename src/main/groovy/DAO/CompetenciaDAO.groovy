@@ -1,15 +1,15 @@
-package service
+package DAO
 
 import model.Competencia
-import repository.CompetenciaRepository
+import util.CompetenciaQueryUtil
 
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class CompetenciaService {
+class CompetenciaDAO {
 
-    CompetenciaRepository repository = new CompetenciaRepository()
+    CompetenciaQueryUtil repository = new CompetenciaQueryUtil()
 
     void cadastrarCompetencia(Connection conn, Competencia competencia) {
         try {

@@ -1,10 +1,10 @@
-package repository
+package util
 
 import model.Vaga
 
 import java.time.LocalDate
 
-class VagaRepository {
+class VagaQueryUtil {
     String cadastra(Vaga vaga) {
         return """
             INSERT INTO vacancy 

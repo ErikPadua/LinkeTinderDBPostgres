@@ -1,7 +1,7 @@
 package controller
 
 import model.Empresa
-import service.EmpresaService
+import DAO.EmpresaDAO
 import view.MenuCriarModel
 
 import java.sql.Connection
@@ -14,7 +14,7 @@ class EmpresaController {
         this.conn = connection
     }
 
-    EmpresaService service = new EmpresaService()
+    EmpresaDAO service = new EmpresaDAO()
     Scanner input = new Scanner(System.in)
 
     void cadastrarEmpresa() {

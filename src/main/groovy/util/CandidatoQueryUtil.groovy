@@ -1,10 +1,10 @@
-package repository
+package util
 
 import model.Candidato
 
 import java.time.LocalDate
 
-class CandidatoRepository {
+class CandidatoQueryUtil  {
 
     String cadastrar(Candidato candidato) {
         return """

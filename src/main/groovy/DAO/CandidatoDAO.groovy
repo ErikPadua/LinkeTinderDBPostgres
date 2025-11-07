@@ -1,15 +1,15 @@
-package service
+package DAO
 
 import model.Candidato
-import repository.CandidatoRepository
+import util.CandidatoQueryUtil
 
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class CandidatoService {
+class CandidatoDAO {
 
-    CandidatoRepository repository = new CandidatoRepository()
+    CandidatoQueryUtil repository = new CandidatoQueryUtil()
 
     void cadastrarCandidato(Connection conn, Candidato candidato) {
         try {

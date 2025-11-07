@@ -1,10 +1,10 @@
-package repository
+package util
 
 import model.Empresa
 
 import java.time.LocalDate
 
-class EmpresaRepository {
+class EmpresaQueryUtil {
     String cadastra(Empresa empresa) {
         return """
             INSERT INTO company 
