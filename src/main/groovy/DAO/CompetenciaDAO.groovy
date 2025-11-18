@@ -11,12 +11,14 @@ class CompetenciaDAO {
 
     CompetenciaQueryUtil repository = new CompetenciaQueryUtil()
 
-    void cadastrarCompetencia(Connection conn, Competencia competencia) {
+    boolean cadastrarCompetencia(Connection conn, Competencia competencia) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.cadastra(competencia))
             query.executeUpdate()
+            return true
         } catch (Exception e) {
             println "Erro ao cadastrar a competência"
+            return false
         }
     }
 
@@ -29,21 +31,26 @@ class CompetenciaDAO {
         }
     }
 
-    void atualizarCompetencia(Connection conn, Competencia competencia, Integer id) {
+    boolean atualizarCompetencia(Connection conn, Competencia competencia, Integer id) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.atualizar(competencia, id))
             query.executeUpdate()
+            return true
         } catch (Exception e) {
             println "Erro ao atualizar a competência"
+            return false
         }
     }
 
-    void deletarCompetencia(Connection conn, Integer id) {
+    boolean deletarCompetencia(Connection conn, Integer id) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.deletar(id))
             query.executeUpdate()
+
+            return true
         } catch (Exception e) {
             println "Erro ao deletar a competência"
+            return false
         }
     }
 }

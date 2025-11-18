@@ -1,53 +1,187 @@
 package controller
 
+import com.google.gson.Gson
+import jakarta.servlet.http.HttpServlet
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import model.Candidato
-import DAO.CandidatoDAO
-import view.MenuCriarModel
 
-import java.sql.Connection
-import java.sql.ResultSet
-import java.time.LocalDate
-import java.time.Period
+import java.time.format.DateTimeFormatter
+import java.time.*
+import model.Competencia
+import service.CandidatoService
+import util.ErrorClass
 
-class CandidatoController {
-    Connection conn
 
-    CandidatoController(Connection connection) {
-        this.conn = connection
+class CandidatoController extends HttpServlet {
+    CandidatoService service
+
+    CandidatoController(CandidatoService service) {
+        this.service = service
     }
 
-    CandidatoDAO service = new CandidatoDAO()
-    Scanner input = new Scanner(System.in)
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        try {
+            String json = new Gson().toJson(service.listarcandidatos())
+            resp.writer.println(json)
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao listar candidatos"))
+            resp.writer.println(json)
+        }
 
-    void cadastrarCandidato() {
-        Candidato candidato = MenuCriarModel.criarCandidato()
-        service.cadastrarCandidato(conn, candidato)
     }
 
-    void listarcandidatos() {
-        ResultSet result = service.listarCandidatos(conn)
+    @Override
+    void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        resp.setCharacterEncoding("UTF-8")
 
-        while (result.next()) {
-            LocalDate dataNascimento = result.getDate("date_of_birth").toLocalDate()
-            int idade = Period.between(dataNascimento, LocalDate.now()).getYears()
+        try {
+            BufferedReader reader = req.getReader()
+            StringBuilder sb = new StringBuilder()
+            String line
 
-            printf("\n\tCandidato ID: %d\n\tIdade: %d\n\tEmail: %s\n\tDescrição: %s\n\tPais: %s\n\tCompetencias: %s\n - \n", result.getInt("id"), idade, result.getString("email"), result.getString("description"), result.getString("country"), result.getString("string_agg"))
+            while ((line = reader.readLine()) != null) {
+                sb.append(line)
+            }
+
+            String jsonBody = sb.toString()
+
+            Gson gson = new Gson()
+            Map body = gson.fromJson(jsonBody, Map)
+
+            String name = body.get("name")
+            if (!name) throw new Exception()
+
+            String surname = body.get("surname")
+            if (!surname) throw new Exception()
+
+            String date_of_birth = body.get("date_of_birth")
+            if (!date_of_birth) throw new Exception()
+
+            String email = body.get("email")
+            if (!email) throw new Exception()
+
+            String cpf = body.get("cpf")
+            if (!cpf) throw new Exception()
+
+            String country = body.get("country")
+            if (!country) throw new Exception()
+
+            String cep = body.get("cep")
+            if (!cep) throw new Exception()
+
+            String description = body.get("description")
+            if (!description) throw new Exception()
+
+            String password = body.get("password")
+            if (!password) throw new Exception()
+
+            LocalDate localDate = LocalDate.parse(date_of_birth, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+
+            Candidato candidato = new Candidato(name: name, surname: surname, date_of_birth: date, email: email, cpf: cpf, country: country, cep: cep, description: description, password: password)
+
+            if (!service.cadastrarCandidato(candidato)) throw new Exception()
+
+            resp.setStatus(201)
+            resp.getWriter().write("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao cadastrar candidato"))
+            resp.writer.println(json)
         }
     }
 
-    void atualizarCandidato() {
-        print "\n\tInsira o id do candidato: "
-        Integer id = Integer.parseInt(input.nextLine())
+    @Override
+    void doPut(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        resp.setCharacterEncoding("UTF-8")
 
-        Candidato candidato = MenuCriarModel.criarCandidato()
+        try {
+            String path = req.getPathInfo()
+            Integer id = path?.substring(1)?.toInteger()
 
-        service.atualizarCandidato(conn, candidato, id)
+            BufferedReader reader = req.getReader()
+            StringBuilder sb = new StringBuilder()
+            String line
+
+            while ((line = reader.readLine()) != null) {
+                sb.append(line)
+            }
+
+            String jsonBody = sb.toString()
+
+            Gson gson = new Gson()
+            Map body = gson.fromJson(jsonBody, Map)
+
+            String name = body.get("name")
+            if (!name) throw new Exception()
+
+            String surname = body.get("surname")
+            if (!surname) throw new Exception()
+
+            String date_of_birth = body.get("date_of_birth")
+            if (!date_of_birth) throw new Exception()
+
+            String email = body.get("email")
+            if (!email) throw new Exception()
+
+            String cpf = body.get("cpf")
+            if (!cpf) throw new Exception()
+
+            String country = body.get("country")
+            if (!country) throw new Exception()
+
+            String cep = body.get("cep")
+            if (!cep) throw new Exception()
+
+            String description = body.get("description")
+            if (!description) throw new Exception()
+
+            String password = body.get("password")
+            if (!password) throw new Exception()
+
+            LocalDate localDate = LocalDate.parse(date_of_birth, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+
+            Candidato candidato = new Candidato(name: name, surname: surname, date_of_birth: date, email: email, cpf: cpf, country: country, cep: cep, description: description, password: password)
+
+            if (!service.atualizarCandidato(candidato,id)) throw new Exception()
+
+            resp.setStatus(200)
+            resp.getWriter().write("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao atualizar candidato"))
+            resp.writer.println(json)
+        }
     }
 
-    void deletarCandidato(){
-        print "\n\tInsira o id do candidato: "
-        Integer id = Integer.parseInt(input.nextLine())
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
 
-        service.deletarCandidato(conn, id)
+        try {
+            String path = req.getPathInfo()
+            Integer id = path?.substring(1)?.toInteger()
+            if (!service.deletarCandidato(id)) throw new Exception()
+
+            resp.setStatus(200)
+            resp.writer.println("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao deletar candidato"))
+            resp.writer.println(json)
+        }
+
     }
 }

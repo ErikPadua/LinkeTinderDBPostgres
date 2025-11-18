@@ -1,47 +1,155 @@
 package controller
 
+import com.google.gson.Gson
+import jakarta.servlet.http.HttpServlet
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import model.Candidato
 import model.Vaga
-import DAO.VagaDAO
-import view.MenuCriarModel
+import service.VagaService
+import util.ErrorClass
 
-import java.sql.Connection
-import java.sql.ResultSet
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
-class VagaController {
-    Connection conn
+class VagaController extends HttpServlet {
+    VagaService service
 
-    VagaController(Connection connection) {
-        this.conn = connection
+    VagaController(VagaService service){
+        this.service = service
     }
 
-    VagaDAO service = new VagaDAO()
-    Scanner input = new Scanner(System.in)
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        try {
+            String json = new Gson().toJson(service.listarVagas())
+            resp.writer.println(json)
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao listar vagas"))
+            resp.writer.println(json)
+        }
 
-    void cadastrarVaga() {
-        Vaga vaga = MenuCriarModel.criarVaga()
-        service.cadastrarVaga(conn, vaga)
     }
 
-    void listarVagas() {
-        ResultSet result = service.listarVagas(conn)
-        while (result.next()) {
-            printf("\n\tVaga ID: %d\n\tEmpresa: %s\n\tVaga: %s\n\tDescrição: %s\n\tLocal: %s,%s\n\tCompetencias Desejadas: %s\n - \n", result.getInt("id"), result.getString("company"), result.getString("name"), result.getString("description"), result.getString("city"), result.getString("state"), result.getString("string_agg"))
+    @Override
+    void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        resp.setCharacterEncoding("UTF-8")
+
+        try {
+            BufferedReader reader = req.getReader()
+            StringBuilder sb = new StringBuilder()
+            String line
+
+            while ((line = reader.readLine()) != null) {
+                sb.append(line)
+            }
+
+            String jsonBody = sb.toString()
+
+            Gson gson = new Gson()
+            Map body = gson.fromJson(jsonBody, Map)
+
+            String name = body.get("name")
+            if (!name) throw new Exception()
+
+            String description = body.get("description")
+            if (!description) throw new Exception()
+
+            String state = body.get("state")
+            if (!state) throw new Exception()
+
+            String city = body.get("city")
+            if (!city) throw new Exception()
+
+            String id_company = body.get("id_company")
+            if (!id_company) throw new Exception()
+
+            Vaga vaga = new Vaga(name: name, description: description, state: state, city: city, id_company: id_company.toInteger())
+
+            if (!service.cadastrarVaga(vaga)) throw new Exception()
+
+            resp.setStatus(201)
+            resp.getWriter().write("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao cadastrar vaga"))
+            resp.writer.println(json)
         }
     }
 
-    void atualizarVaga() {
-        print "\n\tInsira o ID da vaga: "
-        Integer id = Integer.parseInt(input.nextLine())
+    @Override
+    void doPut(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        resp.setCharacterEncoding("UTF-8")
 
-        Vaga vaga = MenuCriarModel.criarVaga()
+        try {
+            String path = req.getPathInfo()
+            Integer id = path?.substring(1)?.toInteger()
 
-        service.atualizarVaga(conn, vaga, id)
+            BufferedReader reader = req.getReader()
+            StringBuilder sb = new StringBuilder()
+            String line
+
+            while ((line = reader.readLine()) != null) {
+                sb.append(line)
+            }
+
+            String jsonBody = sb.toString()
+
+            Gson gson = new Gson()
+            Map body = gson.fromJson(jsonBody, Map)
+
+            String name = body.get("name")
+            if (!name) throw new Exception()
+
+            String description = body.get("description")
+            if (!description) throw new Exception()
+
+            String state = body.get("state")
+            if (!state) throw new Exception()
+
+            String city = body.get("city")
+            if (!city) throw new Exception()
+
+            String id_company = body.get("id_company")
+            if (!id_company) throw new Exception()
+
+            Vaga vaga = new Vaga(name: name, description: description, state: state, city: city, id_company: id_company.toInteger())
+
+            if (!service.atualizarVaga(vaga,id)) throw new Exception()
+
+            resp.setStatus(200)
+            resp.getWriter().write("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao atualizar vaga"))
+            resp.writer.println(json)
+        }
     }
 
-    void deletarVaga() {
-        print "\n\tInsira o id da vaga: "
-        Integer id = Integer.parseInt(input.nextLine())
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
 
-        service.deletarVaga(conn, id)
+        try {
+            String path = req.getPathInfo()
+            Integer id = path?.substring(1)?.toInteger()
+            if (!service.deletarVaga(id)) throw new Exception()
+
+            resp.setStatus(200)
+            resp.writer.println("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao deletar vaga"))
+            resp.writer.println(json)
+        }
+
     }
 }

@@ -1,9 +1,9 @@
 package view
 
-import controller.CandidatoController
-import controller.CompetenciaController
-import controller.EmpresaController
-import controller.VagaController
+import service.CandidatoService
+import service.CompetenciaService
+import service.EmpresaService
+import service.VagaService
 
 import java.sql.Connection
 
@@ -22,7 +22,7 @@ class Menu {
                 while (1) {
                     menuEmpresa()
                     escolha = Integer.parseInt(input.nextLine())
-                    EmpresaController controller = new EmpresaController(conn)
+                    EmpresaService controller = new EmpresaService(conn)
 
                     if (escolha == 1) controller.cadastrarEmpresa()
                     if (escolha == 2) controller.listarEmpresas()
@@ -37,7 +37,7 @@ class Menu {
                 while (1) {
                     menuCandidato()
                     escolha = Integer.parseInt(input.nextLine())
-                    CandidatoController controller = new CandidatoController(conn)
+                    CandidatoService controller = new CandidatoService(conn)
 
                     if (escolha == 1) controller.cadastrarCandidato()
                     if (escolha == 2) controller.listarcandidatos()
@@ -52,7 +52,7 @@ class Menu {
                 while (1) {
                     menuVaga()
                     escolha = Integer.parseInt(input.nextLine())
-                    VagaController controller = new VagaController(conn)
+                    VagaService controller = new VagaService(conn)
 
                     if (escolha == 1) controller.cadastrarVaga()
                     if (escolha == 2) controller.listarVagas()
@@ -67,7 +67,7 @@ class Menu {
                 while (1) {
                     menuCompetencia()
                     escolha = Integer.parseInt(input.nextLine())
-                    CompetenciaController controller = new CompetenciaController(conn)
+                    CompetenciaService controller = new CompetenciaService(conn)
 
                     if (escolha == 1) controller.cadastrarCompetencia()
                     if (escolha == 2) controller.listarCompetencia()

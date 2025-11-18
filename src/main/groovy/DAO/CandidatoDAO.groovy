@@ -11,12 +11,14 @@ class CandidatoDAO {
 
     CandidatoQueryUtil repository = new CandidatoQueryUtil()
 
-    void cadastrarCandidato(Connection conn, Candidato candidato) {
+    boolean cadastrarCandidato(Connection conn, Candidato candidato) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.cadastrar(candidato))
             query.executeUpdate()
+            return true
         } catch (Exception e) {
             println "Erro ao cadastrar o candidato"
+            return false
         }
     }
 
@@ -29,21 +31,25 @@ class CandidatoDAO {
         }
     }
 
-    void atualizarCandidato(Connection conn, Candidato candidato, Integer id) {
+    boolean atualizarCandidato(Connection conn, Candidato candidato, Integer id) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.atualizar(candidato, id))
             query.executeUpdate()
+            return true
         } catch (Exception e) {
             println "Erro ao atualizar o candidato"
+            return false
         }
     }
 
-    void deletarCandidato(Connection conn, Integer id) {
+    boolean deletarCandidato(Connection conn, Integer id) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.deletar(id))
             query.executeUpdate()
+            return true
         } catch (Exception e) {
             println "Erro ao deletar o candidato"
+            return false
         }
     }
 }

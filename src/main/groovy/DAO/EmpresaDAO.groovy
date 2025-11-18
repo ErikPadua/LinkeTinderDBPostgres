@@ -11,12 +11,14 @@ class EmpresaDAO {
 
     EmpresaQueryUtil repository = new EmpresaQueryUtil()
 
-    void cadastrarEmpresa(Connection conn, Empresa empresa) {
+    boolean cadastrarEmpresa(Connection conn, Empresa empresa) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.cadastra(empresa))
             query.executeUpdate()
+            return true
         } catch (Exception e) {
             println "Erro ao cadastrar o empresa"
+            return false
         }
 
     }
@@ -31,21 +33,25 @@ class EmpresaDAO {
 
     }
 
-    void atualizarEmpresa(Connection conn,Empresa empresa, Integer id) {
+    boolean atualizarEmpresa(Connection conn,Empresa empresa, Integer id) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.atualizar(empresa,id))
             query.executeUpdate()
+            return true
         } catch (Exception e) {
             println "Erro ao atualiza a empresa"
+            return false
         }
     }
 
-    void deletarEmpresa(Connection conn, Integer id) {
+    boolean deletarEmpresa(Connection conn, Integer id) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.deletar(id))
             query.executeUpdate()
+            return true
         } catch (Exception e) {
             println "Erro ao deletar a empresa"
+            return false
         }
     }
 }

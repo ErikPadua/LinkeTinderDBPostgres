@@ -1,44 +1,123 @@
 package controller
 
+import com.google.gson.Gson
+import jakarta.servlet.http.HttpServlet
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import model.Competencia
-import DAO.CompetenciaDAO
-import view.MenuCriarModel
+import service.CompetenciaService
+import util.ErrorClass
 
-import java.sql.Connection
-import java.sql.ResultSet
+class CompetenciaController extends HttpServlet {
+    CompetenciaService service
 
-class CompetenciaController {
-    Connection conn
 
-    CompetenciaController(Connection connection) {
-        this.conn = connection
+    CompetenciaController(CompetenciaService service) {
+        this.service = service
     }
 
-    CompetenciaDAO service = new CompetenciaDAO()
-    Scanner input = new Scanner(System.in)
-
-    void cadastrarCompetencia() {
-        Competencia competencia = MenuCriarModel.criarCompetencia()
-        service.cadastrarCompetencia(conn, competencia)
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        String json = new Gson().toJson(service.listarCompetencia())
+        resp.writer.println(json)
     }
 
-    void listarCompetencia() {
-        ResultSet result = service.listarCompetencias(conn)
-        while (result.next()) {
-            printf("\n\tCompetência ID: %d\n\tCompetência: %s\n - \n", result.getInt("id"), result.getString("skill"))
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        resp.setCharacterEncoding("UTF-8")
+
+        try {
+            String path = req.getPathInfo()
+            Integer id = path?.substring(1)?.toInteger()
+
+            BufferedReader reader = req.getReader()
+            StringBuilder sb = new StringBuilder()
+            String line
+
+            while ((line = reader.readLine()) != null) {
+                sb.append(line)
+            }
+
+            String jsonBody = sb.toString()
+
+            Gson gson = new Gson()
+            Map body = gson.fromJson(jsonBody, Map)
+
+            String skill = body.get("skill")
+
+            if (!skill) throw new Exception()
+
+            Competencia competencia = new Competencia(skill: skill)
+
+            if (!service.atualizarCompetencia(competencia, id)) throw new Exception()
+
+            resp.setStatus(200)
+            resp.getWriter().write("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao atualizar competencia"))
+            resp.writer.println(json)
+        }
+
+    }
+
+    @Override
+    void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        resp.setCharacterEncoding("UTF-8")
+
+        try {
+            BufferedReader reader = req.getReader()
+            StringBuilder sb = new StringBuilder()
+            String line
+
+            while ((line = reader.readLine()) != null) {
+                sb.append(line)
+            }
+
+            String jsonBody = sb.toString()
+
+            Gson gson = new Gson()
+            Map body = gson.fromJson(jsonBody, Map)
+
+            String skill = body.get("skill")
+
+            if (!skill) throw new Exception()
+
+            Competencia competencia = new Competencia(skill: skill)
+
+            if (!service.cadastrarCompetencia(competencia)) throw new Exception()
+
+            resp.setStatus(201)
+            resp.getWriter().write("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao cadastrar competencia"))
+            resp.writer.println(json)
         }
     }
 
-    void atualizarCompetencia() {
-        print "\n\tInsira o id da competencia: "
-        Integer id = Integer.parseInt(input.nextLine())
-        Competencia competencia = MenuCriarModel.criarCompetencia()
-        service.atualizarCompetencia(conn, competencia, id)
-    }
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
 
-    void deletarCompetencia() {
-        print "\n\tInsira o id da competencia: "
-        Integer id = Integer.parseInt(input.nextLine())
-        service.deletarCompetencia(conn, id)
+        try {
+            String path = req.getPathInfo()
+            Integer id = path?.substring(1)?.toInteger()
+            if (!service.deletarCompetencia(id)) throw new Exception()
+
+            resp.setStatus(200)
+            resp.writer.println("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao deletar competencia"))
+            resp.writer.println(json)
+        }
+
     }
 }

@@ -1,46 +1,163 @@
 package controller
 
+import com.google.gson.Gson
+import jakarta.servlet.http.HttpServlet
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import model.Empresa
-import DAO.EmpresaDAO
-import view.MenuCriarModel
+import service.EmpresaService
+import util.ErrorClass
 
-import java.sql.Connection
-import java.sql.ResultSet
+class EmpresaController extends HttpServlet {
+    EmpresaService service
 
-class EmpresaController {
-    Connection conn
-
-    EmpresaController(Connection connection) {
-        this.conn = connection
+    EmpresaController(EmpresaService service) {
+        this.service = service
     }
 
-    EmpresaDAO service = new EmpresaDAO()
-    Scanner input = new Scanner(System.in)
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        try {
+            String json = new Gson().toJson(service.listarEmpresas())
+            resp.writer.println(json)
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao listar empresa"))
+            resp.writer.println(json)
+        }
 
-    void cadastrarEmpresa() {
-        Empresa empresa = MenuCriarModel.criarEmpresa()
-        service.cadastrarEmpresa(conn, empresa)
     }
 
-    void listarEmpresas() {
-        ResultSet result = service.listarEmpresas(conn)
-        while (result.next()) {
-            printf("\n\tEmpresa ID: %d\n\tEmpresa: %s\n\tCNPJ: %s\n\tEmail: %s\n\tDescrição: %s\n\tPais: %s\n\tCEP: %s\n - \n", result.getInt("id"), result.getString("name"), result.getString("cnpj"), result.getString("email"), result.getString("description"), result.getString("country"), result.getString("cep"))
+    @Override
+    void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        resp.setCharacterEncoding("UTF-8")
+
+        try {
+            BufferedReader reader = req.getReader()
+            StringBuilder sb = new StringBuilder()
+            String line
+
+            while ((line = reader.readLine()) != null) {
+                sb.append(line)
+            }
+
+            String jsonBody = sb.toString()
+
+            Gson gson = new Gson()
+            Map body = gson.fromJson(jsonBody, Map)
+
+            String name = body.get("name")
+            if (!name) throw new Exception()
+
+            String cnpj = body.get("cnpj")
+            if (!cnpj) throw new Exception()
+
+            String email = body.get("email")
+            if (!email) throw new Exception()
+
+            String description = body.get("description")
+            if (!description) throw new Exception()
+
+            String country = body.get("country")
+            if (!country) throw new Exception()
+
+            String cep = body.get("cep")
+            if (!cep) throw new Exception()
+
+            String password = body.get("password")
+            if (!password) throw new Exception()
+
+            Empresa empresa = new Empresa(name: name, cnpj: cnpj, email: email, description: description, country: country, cep: cep, password: password)
+
+            if (!service.cadastrarEmpresa(empresa)) throw new Exception()
+
+            resp.setStatus(201)
+            resp.getWriter().write("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao cadastrar empresa"))
+            resp.writer.println(json)
         }
     }
 
-    void atualizarEmpresa() {
-        print "\n\tInsira o id da empresa: "
-        Integer id = Integer.parseInt(input.nextLine())
+    @Override
+    void doPut(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
+        resp.setCharacterEncoding("UTF-8")
 
-        Empresa empresa = MenuCriarModel.criarEmpresa()
-        service.atualizarEmpresa(conn, empresa, id)
+        try {
+            String path = req.getPathInfo()
+            Integer id = path?.substring(1)?.toInteger()
+
+            BufferedReader reader = req.getReader()
+            StringBuilder sb = new StringBuilder()
+            String line
+
+            while ((line = reader.readLine()) != null) {
+                sb.append(line)
+            }
+
+            String jsonBody = sb.toString()
+
+            Gson gson = new Gson()
+            Map body = gson.fromJson(jsonBody, Map)
+
+            String name = body.get("name")
+            if (!name) throw new Exception()
+
+            String cnpj = body.get("cnpj")
+            if (!cnpj) throw new Exception()
+
+            String email = body.get("email")
+            if (!email) throw new Exception()
+
+            String description = body.get("description")
+            if (!description) throw new Exception()
+
+            String country = body.get("country")
+            if (!country) throw new Exception()
+
+            String cep = body.get("cep")
+            if (!cep) throw new Exception()
+
+            String password = body.get("password")
+            if (!password) throw new Exception()
+
+            Empresa empresa = new Empresa(name: name, cnpj: cnpj, email: email, description: description, country: country, cep: cep, password: password)
+
+            if (!service.atualizarEmpresa(empresa,id)) throw new Exception()
+
+            resp.setStatus(200)
+            resp.getWriter().write("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao atualizar empresa"))
+            resp.writer.println(json)
+        }
     }
 
-    void deletarEmpresa() {
-        print "\n\tInsira o id da empresa: "
-        Integer id = Integer.parseInt(input.nextLine())
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setContentType("application/json")
 
-        service.deletarEmpresa(conn,id)
+        try {
+            String path = req.getPathInfo()
+            Integer id = path?.substring(1)?.toInteger()
+            if (!service.deletarEmpresa(id)) throw new Exception()
+
+            resp.setStatus(200)
+            resp.writer.println("{}")
+
+        } catch (Exception e) {
+            resp.setStatus(400)
+            String json = new Gson().toJson(new ErrorClass(status: 400, statusMessage: "Bad Request", message: "Falha ao deletar empresa"))
+            resp.writer.println(json)
+        }
+
     }
+
 }

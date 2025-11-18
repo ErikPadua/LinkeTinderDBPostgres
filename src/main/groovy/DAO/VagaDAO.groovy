@@ -11,12 +11,14 @@ class VagaDAO {
 
     VagaQueryUtil repository = new VagaQueryUtil()
 
-    void cadastrarVaga(Connection conn, Vaga vaga) {
+    boolean cadastrarVaga(Connection conn, Vaga vaga) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.cadastra(vaga))
             query.executeUpdate()
+            return true
         } catch (Exception e) {
             println "Erro ao cadastrar a vaga"
+            return false
         }
     }
 
@@ -30,21 +32,25 @@ class VagaDAO {
 
     }
 
-    void atualizarVaga(Connection conn, Vaga vaga, Integer id) {
+    boolean atualizarVaga(Connection conn, Vaga vaga, Integer id) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.atualizar(vaga, id))
             query.executeUpdate()
+            return true
         } catch (Exception e) {
             println "Erro ao atualizar a vaga"
+            return false
         }
     }
 
-    void deletarVaga(Connection conn,Integer id) {
+    boolean deletarVaga(Connection conn,Integer id) {
         try {
             PreparedStatement query = conn.prepareStatement(repository.deletar(id))
             query.executeUpdate()
+            return true
         } catch (Exception e) {
             println "Erro ao deletar a vaga"
+            return false
         }
     }
 }
